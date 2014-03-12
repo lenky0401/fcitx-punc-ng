@@ -1,9 +1,9 @@
 [Addon]
-Name=fcitx-uk-punc
+Name=fcitx-punc-ng
 _GeneralName=Punctuation Support
 _Comment=Punctuation Conversion Support
 Category=Module
 Enabled=True
-Library=fcitx-uk-punc.so
+Library=fcitx-punc-ng.so
 Type=SharedLibrary
 Priority=60

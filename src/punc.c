@@ -99,7 +99,7 @@ typedef struct _FcitxPuncState {
     int slot;
 } FcitxPuncState;
 
-FCITX_DEFINE_PLUGIN(fcitx_uk_punc, module, FcitxModule) = {
+FCITX_DEFINE_PLUGIN(fcitx_punc_ng, module, FcitxModule) = {
     PuncCreate,
     NULL,
     NULL,
@@ -680,4 +680,4 @@ boolean IsHotKeyPunc(FcitxKeySym sym, unsigned int state)
 
     return false;
 }
-#include "fcitx-uk-punc-addfunctions.h"
+#include "fcitx-punc-ng-addfunctions.h"
