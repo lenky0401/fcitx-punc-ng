@@ -99,13 +99,15 @@ typedef struct _FcitxPuncState {
     int slot;
 } FcitxPuncState;
 
-FCITX_DEFINE_PLUGIN(fcitx_punc, module, FcitxModule) = {
+FCITX_DEFINE_PLUGIN(fcitx_uk_punc, module, FcitxModule) = {
     PuncCreate,
     NULL,
     NULL,
     NULL,
     ReloadPunc
 };
+
+FCITX_EXPORT_API int ABI_VERSION = FCITX_ABI_VERSION;
 
 void* PuncCreate(FcitxInstance* instance)
 {
@@ -646,4 +648,4 @@ boolean IsHotKeyPunc(FcitxKeySym sym, unsigned int state)
 
     return false;
 }
-#include "fcitx-punc-addfunctions.h"
+#include "fcitx-uk-punc-addfunctions.h"

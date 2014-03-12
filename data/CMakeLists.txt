@@ -1,8 +1,8 @@
 
 set(FCITX_DATA_FILES
-  punc.mb.zh_CN
-  punc.mb.zh_HK
-  punc.mb.zh_TW
+  uk-punc.mb.zh_CN
+  uk-punc.mb.zh_HK
+  uk-punc.mb.zh_TW
   )
 
 
