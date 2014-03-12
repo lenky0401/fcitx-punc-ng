@@ -190,6 +190,11 @@ void PuncWhichFree(void* arg, void* data)
 void PuncLanguageChanged(void* arg, const void* value)
 {
     FcitxPuncState* puncState = (FcitxPuncState*) arg;
+
+	FcitxIM *im = FcitxInstanceGetCurrentIM(puncState->owner);
+	if (im == NULL || strcmp("sogoupinyin", im->uniqueName) != 0)
+		return;
+	
     const char* lang = (const char*) value;
     FcitxPunc* punc = NULL;
     if (lang) {
@@ -237,6 +242,10 @@ void ResetPuncWhichStatus(void* arg)
     FcitxPuncState* puncState = (FcitxPuncState*) arg;
     WidePunc       *curPunc = puncState->curPunc;
 
+	FcitxIM *im = FcitxInstanceGetCurrentIM(puncState->owner);
+	if (im == NULL || strcmp("sogoupinyin", im->uniqueName) != 0)
+		return;
+
     if (!curPunc)
         return;
 
@@ -252,6 +261,11 @@ boolean PuncPreFilter(void* arg, FcitxKeySym sym, unsigned int state,
 {
     FCITX_UNUSED(retVal);
     FcitxPuncState *puncState = (FcitxPuncState*)arg;
+
+	FcitxIM *im = FcitxInstanceGetCurrentIM(puncState->owner);
+	if (im == NULL || strcmp("sogoupinyin", im->uniqueName) != 0)
+		return false;
+	
     if (FcitxHotkeyIsHotKeySimple(sym, state) &&
         !FcitxHotkeyIsHotKeyDigit(sym, state) && !IsHotKeyPunc(sym, state))
         puncState->bLastIsNumber = false;
@@ -265,6 +279,10 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
     FcitxInputState* input = FcitxInstanceGetInputState(puncState->owner);
     FcitxProfile* profile = FcitxInstanceGetProfile(instance);
     FcitxGlobalConfig* config = FcitxInstanceGetGlobalConfig(instance);
+
+	FcitxIM *im = FcitxInstanceGetCurrentIM(puncState->owner);
+	if (im == NULL || strcmp("sogoupinyin", im->uniqueName) != 0)
+		return false;
 
     char *pPunc = NULL;
 
@@ -588,6 +606,11 @@ GetPunc(FcitxPuncState *puncState, int iKey)
 void TogglePuncState(void* arg)
 {
     FcitxPuncState* puncState = (FcitxPuncState*)arg;
+
+	FcitxIM *im = FcitxInstanceGetCurrentIM(puncState->owner);
+	if (im == NULL || strcmp("sogoupinyin", im->uniqueName) != 0)
+		return;
+	
     FcitxInstance* instance = puncState->owner;
     FcitxProfile* profile = FcitxInstanceGetProfile(instance);
     profile->bUseWidePunc = !profile->bUseWidePunc;
@@ -604,6 +627,10 @@ INPUT_RETURN_VALUE TogglePuncStateWithHotkey(void* arg)
     FcitxPuncState *puncState = (FcitxPuncState*)arg;
     FcitxInstance *instance = puncState->owner;
     FcitxProfile *profile = FcitxInstanceGetProfile(instance);
+
+	FcitxIM *im = FcitxInstanceGetCurrentIM(puncState->owner);
+	if (im == NULL || strcmp("sogoupinyin", im->uniqueName) != 0)
+		return IRV_TO_PROCESS;
 
     FcitxUIStatus *status = FcitxUIGetStatusByName(instance, "punc");
     if (status->visible){
@@ -623,6 +650,11 @@ INPUT_RETURN_VALUE TogglePuncStateWithHotkey(void* arg)
 boolean GetPuncState(void* arg)
 {
     FcitxPuncState* puncState = (FcitxPuncState*) arg;
+
+	FcitxIM *im = FcitxInstanceGetCurrentIM(puncState->owner);
+	if (im == NULL || strcmp("sogoupinyin", im->uniqueName) != 0)
+		return false;
+	
     FcitxInstance* instance = puncState->owner;
     FcitxProfile* profile = FcitxInstanceGetProfile(instance);
     return profile->bUseWidePunc;
