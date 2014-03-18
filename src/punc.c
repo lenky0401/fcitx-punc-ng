@@ -45,7 +45,7 @@
  * Trans full width punc for Fcitx
  */
 
-#define PUNC_DICT_FILENAME  "punc.mb"
+#define PUNC_DICT_FILENAME  "punc-ng.mb"
 #define MAX_PUNC_NO     2
 #define MAX_PUNC_LENGTH     2
 
@@ -232,8 +232,8 @@ PuncGetPunc2(FcitxPuncState *puncState, int key, char **p1, char **p2)
 
 void ResetPunc(void* arg)
 {
-    FcitxPuncState* puncState = (FcitxPuncState*) arg;
-    puncState->bLastIsNumber = false;
+//    FcitxPuncState* puncState = (FcitxPuncState*) arg;
+//    puncState->bLastIsNumber = false;
 //    puncState->cLastIsAutoConvert = '\0';
 }
 
@@ -269,6 +269,9 @@ boolean PuncPreFilter(void* arg, FcitxKeySym sym, unsigned int state,
     if (FcitxHotkeyIsHotKeySimple(sym, state) &&
         !FcitxHotkeyIsHotKeyDigit(sym, state) && !IsHotKeyPunc(sym, state))
         puncState->bLastIsNumber = false;
+	FcitxLog(WARNING, "puncState->bLastIsNumber:%d",
+		puncState->bLastIsNumber);
+	
     return false;
 }
 
@@ -288,6 +291,9 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
 
     if (*retVal != IRV_TO_PROCESS)
         return false;
+
+	FcitxLog(WARNING, "puncState->bLastIsNumber:%d",
+		puncState->bLastIsNumber);
 
     FcitxCandidateWordList *candList = FcitxInputStateGetCandidateList(input);
     if (FcitxCandidateWordGetListSize(candList) != 0) {
@@ -360,8 +366,16 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
     }
 
     if (profile->bUseWidePunc) {
+		
+		boolean lastIsNumber = puncState->bLastIsNumber;
+		if (FcitxHotkeyIsHotKeyDigit(sym, state)) {
+            puncState->bLastIsNumber = true;
+        } else if (!FcitxHotkeyIsHotKeyModifierCombine(sym, state)){
+            puncState->bLastIsNumber = false;
+        }
+		
         if (FcitxHotkeyIsHotKey(sym, state, FCITX_BACKSPACE)
-            && puncState->cLastIsAutoConvert) 
+            && puncState->cLastIsAutoConvert && lastIsNumber) 
         {
             FcitxInstanceForwardKey(puncState->owner, 
                 FcitxInstanceGetCurrentIC(instance), FCITX_PRESS_KEY, 
@@ -375,9 +389,8 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
             return true;
             
         } else if (FcitxHotkeyIsHotKeyDigit(sym, state) 
-            && puncState->cLastIsAutoConvert) 
+            && puncState->cLastIsAutoConvert && lastIsNumber) 
         {
-    
             if (puncState->cLastIsAutoConvert == '^' ||
                 puncState->cLastIsAutoConvert == '_')
             {
@@ -408,10 +421,6 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
             //puncState->cLastIsAutoConvert = 0;
             //*retVal = IRV_DO_NOTHING;
             //return true;
-        } else if (FcitxHotkeyIsHotKeyDigit(sym, state)) {
-            puncState->bLastIsNumber = true;
-        } else {
-            puncState->bLastIsNumber = false;
         }
     }
     puncState->cLastIsAutoConvert = 0;
