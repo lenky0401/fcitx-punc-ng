@@ -40,6 +40,8 @@
 #include "fcitx-utils/bitset.h"
 #include <fcitx/module/freedesktop-notify/fcitx-freedesktop-notify.h>
 
+#include "cfgrw.h"
+
 /**
  * @file punc.c
  * Trans full width punc for Fcitx
@@ -91,6 +93,7 @@ static void PuncWhichFree(void* arg, void* data);
 DECLARE_ADDFUNCTIONS(Punc)
 
 typedef struct _FcitxPuncState {
+    boolean enableSmartPunc;
     char cLastIsAutoConvert;
     boolean bLastIsNumber;
     FcitxInstance* owner;
@@ -114,6 +117,9 @@ void* PuncCreate(FcitxInstance* instance)
     FcitxPuncState* puncState = fcitx_utils_malloc0(sizeof(FcitxPuncState));
     puncState->owner = instance;
     LoadPuncDict(puncState);
+
+    puncState->enableSmartPunc = getCfgValueBool("sogouEnv.ini", "Genelal:SmartPunc", 1);
+	
     FcitxKeyFilterHook hk;
     hk.arg = puncState;
     hk.func = ProcessPunc;
@@ -365,7 +371,7 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
         return false;
     }
 
-    if (profile->bUseWidePunc) {
+    if (profile->bUseWidePunc && puncState->enableSmartPunc) {
 		
 		boolean lastIsNumber = puncState->bLastIsNumber;
 		if (FcitxHotkeyIsHotKeyDigit(sym, state)) {
@@ -675,6 +681,7 @@ void ReloadPunc(void* arg)
     FreePunc(puncState);
     LoadPuncDict(puncState);
 
+    puncState->enableSmartPunc = getCfgValueBool("sogouEnv.ini", "Genelal:SmartPunc", 1);
     PuncLanguageChanged(puncState, FcitxInstanceGetContextString(puncState->owner, CONTEXT_IM_LANGUAGE));
 }
 
