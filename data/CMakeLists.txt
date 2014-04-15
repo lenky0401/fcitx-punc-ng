@@ -6,7 +6,7 @@ set(FCITX_DATA_FILES
   )
 
 
-install(FILES ${FCITX_DATA_FILES} DESTINATION "${pkgdatadir}/data")
+install(FILES ${FCITX_DATA_FILES} DESTINATION "/usr/share/fcitx/data")
 
 
 
