@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <libintl.h>
 
-#include "punc.h"
+#include "punc-ng.h"
 #include "fcitx/module.h"
 #include "fcitx/fcitx.h"
 #include "fcitx/hook.h"
