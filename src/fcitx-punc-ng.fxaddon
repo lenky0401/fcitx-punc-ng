@@ -1,6 +1,6 @@
 [FcitxAddon]
-Name=fcitx-punc
-Prefix=Punc
+Name=fcitx-punc-ng
+Prefix=PuncNg
 Include0="punc.h"
 Function0=GetPunc
 Function1=GetPunc2
