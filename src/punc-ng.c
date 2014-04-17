@@ -42,6 +42,11 @@
 
 #include "cfgrw.h"
 
+#ifdef FcitxLog
+#undef FcitxLog
+#define FcitxLog(e, fmt...) 
+#endif
+
 /**
  * @file punc.c
  * Trans full width punc for Fcitx
