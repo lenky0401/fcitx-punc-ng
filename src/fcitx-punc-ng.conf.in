@@ -6,4 +6,4 @@ Category=Module
 Enabled=True
 Library=fcitx-punc-ng.so
 Type=SharedLibrary
-Priority=60
+Priority=59
