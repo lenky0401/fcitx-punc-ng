@@ -418,9 +418,9 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
                 FcitxInstanceGetCurrentIC(instance), buf);
 
             
-            //FcitxInstanceForwardKey(puncState->owner, 
-            //    FcitxInstanceGetCurrentIC(instance), FCITX_PRESS_KEY, 
-            //    sym, state);
+            FcitxInstanceForwardKey(puncState->owner, 
+                FcitxInstanceGetCurrentIC(instance), FCITX_PRESS_KEY, 
+                sym, state);
             puncState->cLastIsAutoConvert = 0;
             *retVal = IRV_DO_NOTHING;
             return true;
