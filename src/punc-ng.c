@@ -285,6 +285,7 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
     FcitxInputState* input = FcitxInstanceGetInputState(puncState->owner);
     FcitxProfile* profile = FcitxInstanceGetProfile(instance);
     FcitxGlobalConfig* config = FcitxInstanceGetGlobalConfig(instance);
+    boolean lastIsNumber = puncState->bLastIsNumber;
 
 	FcitxIM *im = FcitxInstanceGetCurrentIM(puncState->owner);
 	if (im == NULL || strcmp("sogoupinyin", im->uniqueName) != 0)
@@ -295,8 +296,8 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
     if (*retVal != IRV_TO_PROCESS)
         return false;
 
-	FcitxLog(WARNING, "puncState->bLastIsNumber:%d",
-		puncState->bLastIsNumber);
+	//FcitxLog(WARNING, "puncState->bLastIsNumber:%d",
+	//	puncState->bLastIsNumber);
 
     FcitxCandidateWordList *candList = FcitxInputStateGetCandidateList(input);
     if (FcitxCandidateWordGetListSize(candList) != 0) {
@@ -317,7 +318,12 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
 
     FcitxKeySym origsym = sym;
     sym = FcitxHotkeyPadToMain(sym);
-    if (profile->bUseWidePunc) {
+    //数字后句点特殊处理：直接上英文点
+    if (lastIsNumber && origsym == FcitxKey_period)
+    {
+        puncState->bLastIsNumber = false;
+    }
+    else if (profile->bUseWidePunc) {
         /*
         if (puncState->bLastIsNumber && config->bEngPuncAfterNumber
             && (FcitxHotkeyIsHotKey(origsym, state, FCITX_PERIOD)
@@ -370,7 +376,6 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
 
     if (profile->bUseWidePunc && puncState->enableSmartPunc) {
 		
-		boolean lastIsNumber = puncState->bLastIsNumber;
 		if (FcitxHotkeyIsHotKeyDigit(sym, state)) {
             puncState->bLastIsNumber = true;
         } else if (!FcitxHotkeyIsHotKeyModifierCombine(sym, state)){
