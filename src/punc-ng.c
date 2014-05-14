@@ -101,6 +101,7 @@ typedef struct _FcitxPuncState {
     boolean enableSmartPunc;
     char cLastIsAutoConvert;
     boolean bLastIsNumber;
+    int inputCount;
     FcitxInstance* owner;
     FcitxPunc* puncSet;
     WidePunc* curPunc;
@@ -136,6 +137,7 @@ void* PuncCreate(FcitxInstance* instance)
 
     puncState->cLastIsAutoConvert = '\0';
     puncState->bLastIsNumber = false;
+    puncState->inputCount = 0;
 
     FcitxHotkeyHook hotkey;
     hotkey.hotkey = FcitxInstanceGetGlobalConfig(instance)->hkPunc;
@@ -298,6 +300,7 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
 
 	//FcitxLog(WARNING, "puncState->bLastIsNumber:%d",
 	//	puncState->bLastIsNumber);
+	//fprintf(stderr, "profile->bUseWidePunc:%d\n", profile->bUseWidePunc);
 
     FcitxCandidateWordList *candList = FcitxInputStateGetCandidateList(input);
     if (FcitxCandidateWordGetListSize(candList) != 0) {
@@ -319,7 +322,7 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
     FcitxKeySym origsym = sym;
     sym = FcitxHotkeyPadToMain(sym);
     //数字后句点特殊处理：直接上英文点
-    if (lastIsNumber && origsym == FcitxKey_period)
+    if (lastIsNumber && origsym == FcitxKey_period && puncState->inputCount == 0)
     {
         puncState->bLastIsNumber = false;
     }
@@ -337,6 +340,14 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
         */
         if (FcitxHotkeyIsHotKeySimple(sym, state))
             pPunc = GetPunc(puncState, origsym);
+    }
+
+    if (FcitxHotkeyIsHotKeyDigit(sym, state)) {
+        puncState->bLastIsNumber = true;
+        puncState->inputCount = 0;
+    } else if (!FcitxHotkeyIsHotKeyModifierCombine(sym, state) && pPunc &&
+        puncState->inputCount ++ >= 1){
+        puncState->bLastIsNumber = false;
     }
 
     /*
@@ -376,15 +387,18 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
 
     if (profile->bUseWidePunc && puncState->enableSmartPunc) {
 		
-		if (FcitxHotkeyIsHotKeyDigit(sym, state)) {
-            puncState->bLastIsNumber = true;
-        } else if (!FcitxHotkeyIsHotKeyModifierCombine(sym, state)){
-            puncState->bLastIsNumber = false;
-        }
-		
         if (FcitxHotkeyIsHotKey(sym, state, FCITX_BACKSPACE)
             && puncState->cLastIsAutoConvert && lastIsNumber) 
         {
+            if (puncState->cLastIsAutoConvert == '^' ||
+                puncState->cLastIsAutoConvert == '_')
+            {
+                FcitxInstanceForwardKey(puncState->owner,
+                    FcitxInstanceGetCurrentIC(instance), FCITX_PRESS_KEY,
+                    sym, state);
+
+                usleep(10000);
+            }
             FcitxInstanceForwardKey(puncState->owner, 
                 FcitxInstanceGetCurrentIC(instance), FCITX_PRESS_KEY, 
                 sym, state);
@@ -422,13 +436,12 @@ boolean ProcessPunc(void* arg, FcitxKeySym sym, unsigned int state, INPUT_RETURN
             FcitxInstanceCommitString(puncState->owner, 
                 FcitxInstanceGetCurrentIC(instance), buf);
 
-            
-            FcitxInstanceForwardKey(puncState->owner, 
-                FcitxInstanceGetCurrentIC(instance), FCITX_PRESS_KEY, 
-                sym, state);
+            //FcitxInstanceForwardKey(puncState->owner, 
+            //    FcitxInstanceGetCurrentIC(instance), FCITX_PRESS_KEY, 
+            //    sym, state);
             puncState->cLastIsAutoConvert = 0;
-            *retVal = IRV_DO_NOTHING;
-            return true;
+            //*retVal = IRV_DO_NOTHING;
+            return false;
         }
     }
     puncState->cLastIsAutoConvert = 0;
